@@ -8,7 +8,6 @@ exports.category_list = function (req, res, next) {
     if (err) {
       return next(err);
     }
-    console.log(category_list);
     res.json(category_list);
   });
 };
