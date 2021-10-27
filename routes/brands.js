@@ -43,7 +43,7 @@ router.post("/:id/update", function (req, res, next) {
 // GET request for one brand
 router.get("/:id", function (req, res, next) {
   const id = req.params.id;
-  res.send(`This is the BRAND page for product ID: ${id}`);
+  res.send(`This is the BRAND page for ID: ${id}`);
 });
 
 module.exports = router;
