@@ -3,7 +3,7 @@ var express = require("express");
 
 // Set up mongoose connection
 const mongoose = require("mongoose");
-const mongoDB = `mongodb+srv://inventory-app-admin:super-user@cluster0.dg6jj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const mongoDB = `mongodb+srv://inventory-app-admin:super-user@cluster0.dg6jj.mongodb.net/inventory?retryWrites=true&w=majority`;
 // mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connect(mongoDB);
 const db = mongoose.connection;
