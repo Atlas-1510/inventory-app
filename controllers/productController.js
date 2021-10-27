@@ -6,18 +6,39 @@ exports.product_list = (req, res, next) => {
     if (err) {
       return next(err);
     }
-    res.json(product_list);
+    res.render("product_list", {
+      product_list,
+      title: "Products",
+    });
+    // res.json(product_list);
   });
 };
 
 // Display detail page for a specific product
 exports.product_detail = (req, res, next) => {
-  Product.findById(req.params.id).exec((err, result) => {
-    if (err) {
-      return next(err);
-    }
-    res.json(result);
-  });
+  Product.findById(req.params.id)
+    .populate(["brand", "category"])
+    .exec((err, result) => {
+      if (err) {
+        return next(err);
+      }
+      const { title, price, rating, brand, category, quantity } = result;
+      res.render("product", {
+        title,
+        price,
+        rating,
+        brand,
+        category,
+        quantity,
+        // an_array: [
+        //   { title: "Thing One", snippet: "Snippet One" },
+        //   { title: "Thing Two", snippet: "Snippet Two" },
+        //   { title: "Thing Three", snippet: "Snippet Three" },
+        // ],
+        an_array: [],
+      });
+      // res.json(result);
+    });
 };
 
 // Display product create form on GET
