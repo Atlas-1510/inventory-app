@@ -10,4 +10,4 @@ CategorySchema.virtual("url").get(() => {
   return `/category/${this_id}`;
 });
 
-module.exports("Category", CategorySchema);
+module.exports = mongoose.model("Category", CategorySchema);
