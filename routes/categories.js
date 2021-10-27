@@ -1,49 +1,30 @@
 const express = require("express");
 const router = express.Router();
 
+const categoriesController = require("../controllers/categoriesController");
+
 // GET categories page
-router.get("/", (req, res, next) => {
-  res.send("This is the CATEGORIES page");
-});
+router.get("/", categoriesController.category_list);
 
 // GET request for creating a category
-router.get("/create", function (req, res, next) {
-  res.send("This is the CREATE CATEGORY page");
-});
+router.get("/create", categoriesController.category_create_get);
 
 // POST request for creating a category
-router.post("/create", function (req, res, next) {
-  res.send("This is the POST page for CREATING a CATEGORY");
-});
+router.post("/create", categoriesController.category_create_post);
 
 // GET request to delete a category
-router.get("/:id/delete", function (req, res, next) {
-  res.send(`This is the DELETE CATEGORY page for ID: ${req.params.id}`);
-});
+router.get("/:id/delete", categoriesController.category_delete_get);
 
 // POST request to delete a category
-router.post("/:id/delete", function (req, res, next) {
-  res.send(
-    `This is the POST page for DELETING a CATEGORY with an ID of: ${req.params.id}`
-  );
-});
+router.post("/:id/delete", categoriesController.category_delete_post);
 
 // GET request to update a category
-router.get("/:id/update", function (req, res, next) {
-  res.send(`This is the UPDATE CATEGORY page for ID: ${req.params.id}`);
-});
+router.get("/:id/update", categoriesController.category_update_get);
 
 // POST request to update a category
-router.post("/:id/update", function (req, res, next) {
-  res.send(
-    `This is the POST page for UPDATING a CATEGORY with an ID of: ${req.params.id}`
-  );
-});
+router.post("/:id/update", categoriesController.category_update_post);
 
 // GET request for one category
-router.get("/:id", function (req, res, next) {
-  const id = req.params.id;
-  res.send(`This is the CATEGORY page for ID: ${id}`);
-});
+router.get("/:id", categoriesController.category_detail);
 
 module.exports = router;
