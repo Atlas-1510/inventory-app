@@ -10,7 +10,6 @@ exports.product_list = (req, res, next) => {
       product_list,
       title: "Products",
     });
-    // res.json(product_list);
   });
 };
 
