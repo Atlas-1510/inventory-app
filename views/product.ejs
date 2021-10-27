@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <%- include('./partials/head.ejs') %>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+    <h1>Product Page</h1>
+    <h2><%= title %></h2>
+    <ul>
+      <li><strong>Price:</strong> $<%= price %></li>
+      <li><strong>Rating:</strong> <%= rating %> out of 5</li>
+      <li>
+        <strong>Brand:</strong>
+        <a href="<%= brand.url %> "><%= brand.title %></a>
+      </li>
+      <li>
+        <strong>Category:</strong>
+        <a href="<%= category.url %> "><%= category.title %></a>
+      </li>
+    </ul>
+
+    <%- include("./partials/footer.ejs") %>
+  </body>
+</html>
