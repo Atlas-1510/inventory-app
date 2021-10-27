@@ -1,49 +1,30 @@
 const express = require("express");
 const router = express.Router();
 
+const brand_controller = require("../controllers/brandController");
+
 // GET brands page
-router.get("/", function (req, res, next) {
-  res.send("This is the BRANDS page");
-});
+router.get("/", brand_controller.brand_list);
 
 // GET request for creating a brand
-router.get("/create", function (req, res, next) {
-  res.send("This is the CREATE BRAND page");
-});
+router.get("/create", brand_controller.brand_create_get);
 
 // POST request for creating a brand
-router.post("/create", function (req, res, next) {
-  res.send("This is the POST page for CREATING a BRAND");
-});
+router.post("/create", brand_controller.brand_create_post);
 
 // GET request to delete a brand
-router.get("/:id/delete", function (req, res, next) {
-  res.send(`This is the DELETE BRAND page for ID: ${req.params.id}`);
-});
+router.get("/:id/delete", brand_controller.brand_delete_get);
 
 // POST request to delete a brand
-router.post("/:id/delete", function (req, res, next) {
-  res.send(
-    `This is the POST page for DELETING a BRAND with an ID of: ${req.params.id}`
-  );
-});
+router.post("/:id/delete", brand_controller.brand_delete_post);
 
 // GET request to update a brand
-router.get("/:id/update", function (req, res, next) {
-  res.send(`This is the UPDATE BRAND page for ID: ${req.params.id}`);
-});
+router.get("/:id/update", brand_controller.brand_update_get);
 
 // POST request to update a brand
-router.post("/:id/update", function (req, res, next) {
-  res.send(
-    `This is the POST page for UPDATING a BRAND with an ID of: ${req.params.id}`
-  );
-});
+router.post("/:id/update", brand_controller.brand_update_post);
 
 // GET request for one brand
-router.get("/:id", function (req, res, next) {
-  const id = req.params.id;
-  res.send(`This is the BRAND page for ID: ${id}`);
-});
+router.get("/:id", brand_controller.brand_detail);
 
 module.exports = router;
