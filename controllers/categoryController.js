@@ -30,7 +30,10 @@ exports.category_detail = function (req, res, next) {
       if (err) {
         return next(err);
       }
-      res.json(results);
+      res.render("category", {
+        title: results.category.title,
+        product_list: results.category_products,
+      });
     }
   );
 };

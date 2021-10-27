@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <%- include('./partials/head.ejs') %>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+    <h1><%= title %></h1>
+    <p>This is the <%= title %> page</p>
+    <% if (product_list.length > 0) { %> <% product_list.forEach(item => { %>
+    <h2>
+      <a href="<%= item.url %>"><%= item.title %></a>
+    </h2>
+
+    <ul>
+      <li>$<%= item.price %></li>
+      <li><%= item.rating %> out of 5 stars</li>
+    </ul>
+    <% }) %> <% } else { %>
+    <p>There are no products to display!</p>
+    <% } %> <%- include("./partials/footer.ejs") %>
+  </body>
+</html>
