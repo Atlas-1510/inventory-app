@@ -8,7 +8,6 @@ exports.brand_list = function (req, res, next) {
     if (err) {
       return next(err);
     }
-    console.log(brands_list);
     res.json(brands_list);
   });
 };
