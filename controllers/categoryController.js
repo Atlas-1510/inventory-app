@@ -64,7 +64,7 @@ exports.category_create_post = [
     });
     if (!errors.isEmpty()) {
       res.render("category_form_create", {
-        title: " Create Category",
+        title: "Create Category",
         category: category,
         errors: errors.array(),
       });
