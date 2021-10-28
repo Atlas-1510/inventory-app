@@ -30,7 +30,10 @@ exports.brand_detail = function (req, res, next) {
       if (err) {
         return next(err);
       }
-      res.json(results);
+      res.render("brand", {
+        title: results.brand.title,
+        product_list: results.brand_products,
+      });
     }
   );
 };
