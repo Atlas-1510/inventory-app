@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <%- include('./partials/head.ejs') %>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+    <h1><%= title %></h1>
+    <form method="post" action="">
+      <label for="title"> Category name:</label>
+      <input type="text" name="title" value="<%= (typeof category ===
+      "undefined") ? "" : category.title %> " />
+      <label for="description"> Description:</label>
+      <input type="text" name="description" value="<%= (typeof category ===
+      "undefined") ? "" : category.description %> " />
+
+      <button type="submit">Submit</button>
+      <% if (typeof errors !== "undefined") { %>
+      <ul>
+        <% errors.forEach(error => { %>
+        <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+      <% } %>
+    </form>
+    <%- include("./partials/footer.ejs") %>
+  </body>
+</html>

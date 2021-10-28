@@ -1,6 +1,7 @@
 const async = require("async");
 const Category = require("../models/category");
 const Product = require("../models/product");
+const { body, validationResult } = require("express-validator");
 
 // Display list of all categories
 exports.category_list = function (req, res, next) {
@@ -40,13 +41,55 @@ exports.category_detail = function (req, res, next) {
 
 // Display category create form on GET
 exports.category_create_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Category create form GET");
+  res.render("category_form_create", { title: "Create Category" });
 };
 
 // Handle category create on POST
-exports.category_create_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Category create form POST");
-};
+exports.category_create_post = [
+  body("title")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Category title length must be 1-100 characters")
+    .escape(),
+  body("description")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Description required.")
+    .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const category = new Category({
+      title: req.body.title,
+      description: req.body.description,
+    });
+    if (!errors.isEmpty()) {
+      res.render("category_form_create", {
+        title: " Create Category",
+        category: category,
+        errors: errors.array(),
+      });
+    } else {
+      Category.findOne({ title: category.title }).exec(function (
+        err,
+        found_category
+      ) {
+        if (err) {
+          return next(err);
+        }
+        if (found_category) {
+          res.redirect(found_category.url);
+        } else {
+          category.save(function (err) {
+            if (err) {
+              return next(err);
+            }
+            res.redirect(category.url);
+          });
+        }
+      });
+    }
+  },
+];
 
 // Display category delete form on GET
 exports.category_delete_get = function (req, res, next) {
