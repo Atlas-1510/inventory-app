@@ -53,12 +53,7 @@ exports.brand_create_post = [
     .withMessage("Brand name must be within 1-100 characters")
     .escape(),
   // Validate and sanitize the description field.
-  body("description")
-    .trim()
-    .optional({ checkFalsy: true })
-    .isAlphanumeric()
-    .withMessage("Description can only contain alphanumeric characters.")
-    .escape(),
+  body("description").trim().escape(),
 
   // Process request after validation and sanitization
   (req, res, next) => {
