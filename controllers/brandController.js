@@ -4,11 +4,14 @@ const Product = require("../models/product");
 
 // Display list of all brands
 exports.brand_list = function (req, res, next) {
-  Brand.find().exec((err, brands_list) => {
+  Brand.find().exec((err, brand_list) => {
     if (err) {
       return next(err);
     }
-    res.json(brands_list);
+    res.render("brand_list", {
+      title: "Brands",
+      brand_list,
+    });
   });
 };
 

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <%- include('./partials/head.ejs') %>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+    <h1><%= title %></h1>
+    <% if (brand_list.length > 0) { %> <% brand_list.forEach(item => { %>
+    <h2>
+      <a href="<%= item.url %>"><%= item.title %></a>
+    </h2>
+
+    <p><%= item.description %></p>
+
+    <% }) %> <% } else { %>
+    <p>There are no brands to display!</p>
+    <% } %> <%- include("./partials/footer.ejs") %>
+  </body>
+</html>
