@@ -30,18 +30,26 @@
           <option value="5">5</option>
         </select>
       </div>
+      <div>
+        <% if (typeof brands !== "undefined") { %>
+        <p>Brand:</p>
+        <% brands.forEach(brand => { %> <input type="radio" id="<%= brand.title
+        %>" name="brand" value="<%= brand._id %>" <%= (brand.checked ? "checked"
+        : "") %> />
+        <label for="<%= brand.title %>"><%= brand.title %></label>
+        <% }) %> <% } %>
+      </div>
 
-      <% if (brands.length > 0) { %>
-      <p>Brand:</p>
-      <% brands.forEach(brand => { %>
-      <input type="radio" id="<%= brand.title %>" name="brand" />
-      <label for="<%= brand.title %>"><%= brand.title %></label>
-      <% }) %> <% } %> <% if (brands.length > 0) { %>
-      <p>Category:</p>
-      <% categories.forEach(category => { %>
-      <input type="radio" id="<%= category.title %>" name="category" />
-      <label for="<%= category.title %>"><%= category.title %></label>
-      <% }) %> <% } %>
+      <div>
+        <% if (typeof categories !== "undefined") { %>
+        <p>Category:</p>
+        <% categories.forEach(category => { %> <input type="radio" id="<%=
+        category.title %>" name="category" value="<%= category._id %>" <%=
+        (category.checked ? "checked" : "") %> />
+        <label for="<%= category.title %>"><%= category.title %></label>
+        <% }) %> <% } %>
+      </div>
+
       <div>
         <button type="submit">Submit</button>
       </div>

@@ -56,99 +56,88 @@ exports.product_create_get = function (req, res, next) {
 
 // Handle product create on POST
 exports.product_create_post = [
+  body("title")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Product title length must be within 1-100 characters.")
+    .escape(),
+  body("price")
+    .trim()
+    .isCurrency({ allow_negatives: false, digits_after_decimal: [0, 1, 2] })
+    .withMessage(
+      "Price must be positive, and have two or fewer decimal places."
+    )
+    .escape(),
+  body("rating")
+    .trim()
+    .isIn([1, 2, 3, 4, 5])
+    .withMessage("Rating must be 1-5, inclusive.")
+    .escape(),
+  body("quantity")
+    .trim()
+    .isInt({ min: 0 })
+    .withMessage("Quantity required.")
+    .escape(),
+  body("brand.*").escape(),
+  body("category.*").escape(),
   (req, res, next) => {
-    if (!(req.body.brand instanceof Array)) {
-      if (typeof req.body.brand === "undefined") {
-        req.body.brand = [];
-      } else {
-        req.body.brand = new Array(req.body.brand);
-      }
-    }
-    next();
-  },
-  (req, res, next) => {
-    if (!(req.body.category instanceof Array)) {
-      if (typeof req.category.brand === "undefined") {
-        req.body.category = [];
-      } else {
-        req.body.category = new Array(req.body.category);
-      }
-    }
-    next();
-  },
-  function (req, res, next) {
-    body("title")
-      .trim()
-      .isLength({ min: 1, max: 100 })
-      .withMessage("Product title length must be within 1-100 characters")
-      .escape(),
-      body("price")
-        .trim()
-        .isCurrency({ allow_negatives: false, digits_after_decimal: [0, 1, 2] })
-        .withMessage(
-          "Price must be positive, and have two or fewer decimal places."
-        )
-        .escape(),
-      body("rating")
-        .trim()
-        .isIn([1, 2, 3, 4, 5])
-        .withMessage("Rating must be 1-5, inclusive.")
-        .escape(),
-      body("quantity").trim().isInt({ min: 0 }).not().isFloat().escape(),
-      body("brand.*").escape(),
-      body("category.*").escape(),
-      (req, res, next) => {
-        const errors = validationResult(req);
-        const product = new Product({
-          title: req.body.title,
-          price: req.body.price,
-          rating: req.body.rating,
-          quantity: req.body.quantity,
-          brand: req.body.brand,
-          category: req.body.category,
-        });
+    const errors = validationResult(req);
+    console.log(req.body.brand);
+    const product = new Product({
+      title: req.body.title,
+      price: req.body.price,
+      rating: req.body.rating,
+      quantity: req.body.quantity,
+      brand: req.body.brand,
+      category: req.body.category,
+    });
+    console.log(product.brand);
+    if (!errors.isEmpty()) {
+      async.parallel(
+        {
+          brands: function (callback) {
+            Brand.find(callback);
+          },
+          categories: function (callback) {
+            Category.find(callback);
+          },
+        },
+        function (err, results) {
+          if (err) {
+            return next(err);
+          }
 
-        if (!errors.isEmpty()) {
-          async.parallel({
-            brands: function (callback) {
-              Brand.find(callback);
-            },
-            categories: function (callback) {
-              Category.find(callback);
-            },
-            function(err, results) {
-              if (err) {
-                return next(err);
-              }
-              for (let i = 0; i < results.brands.length; i++) {
-                if (product.brand.indexOf(results.brands[i] > -1)) {
-                  results.brands[i].checked = "true";
-                }
-              }
-              for (let i = 0; i < results.categories.length; i++) {
-                if (product.category.indexOf(results.categories[i] > -1)) {
-                  results.categories[i].checked = "true";
-                }
-              }
-              res.render("product_form_create", {
-                title: "Create Product",
-                brands: results.brands,
-                categories: results.categories,
-                product: product,
-                errors: errors.array(),
-              });
-            },
-          });
-          return;
-        } else {
-          product.save(function (err) {
-            if (err) {
-              return next(err);
+          results.brands.forEach((brand) => {
+            if (brand.id === req.body.brand) {
+              brand.checked = true;
+            } else {
+              brand.checked = false;
             }
-            res.redirect(product.url);
+          });
+          results.categories.forEach((category) => {
+            if (category.id === req.body.category) {
+              category.checked = true;
+            } else {
+              category.checked = false;
+            }
+          });
+          res.render("product_form_create", {
+            title: "Create Product",
+            brands: results.brands,
+            categories: results.categories,
+            product: product,
+            errors: errors.array(),
           });
         }
-      };
+      );
+    } else {
+      product.save(function (err) {
+        if (err) {
+          return next(err);
+        }
+        res.redirect(product.url);
+      });
+    }
   },
 ];
 
