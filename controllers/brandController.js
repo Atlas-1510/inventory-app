@@ -41,7 +41,7 @@ exports.brand_detail = function (req, res, next) {
 
 // Display brand create form on GET
 exports.brand_create_get = function (req, res, next) {
-  res.render("brand_form", { title: "Create Brand" });
+  res.render("brand_form_create", { title: "Create Brand" });
 };
 
 // Handle brand create on POST
@@ -73,7 +73,7 @@ exports.brand_create_post = [
 
     if (!errors.isEmpty()) {
       // There are errors. Render the form again with sanitized values/error messages.
-      res.render("brand_form", {
+      res.render("brand_form_create", {
         title: "Create Brand",
         brand: brand,
         errors: errors.array(),
