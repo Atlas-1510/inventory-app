@@ -33,6 +33,7 @@ exports.brand_detail = function (req, res, next) {
       }
       res.render("brand", {
         title: results.brand.title,
+        brand: results.brand,
         product_list: results.brand_products,
       });
     }
@@ -102,7 +103,29 @@ exports.brand_create_post = [
 
 // Display brand delete form on GET
 exports.brand_delete_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Brand delete form GET");
+  async.parallel(
+    {
+      brand: function (callback) {
+        Brand.findById(req.params.id).exec(callback);
+      },
+      brand_products: function (callback) {
+        Product.find({ brand: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err);
+      }
+      if (results.brand === null) {
+        res.redirect("/brands");
+      }
+      res.render("brand_form_delete", {
+        title: "Delete Brand",
+        brand: results.brand,
+        brand_products: results.brand_products,
+      });
+    }
+  );
 };
 
 // Handle brand delete form on POST
