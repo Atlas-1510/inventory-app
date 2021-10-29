@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <%- include('./partials/head.ejs') %>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+    <h1>Delete Brand: <%= brand.title %></h1>
+
+    <% if (typeof brand_products !== "undefined" && brand_products.length > 0) {
+    %>
+    <p>
+      <strong>You must delete these products before removing this brand</strong>
+    </p>
+    <ul>
+      <% brand_products.forEach(product => { %>
+      <li><a href="<%= product.url %>"><%= product.title %></a></li>
+      <% }) %>
+    </ul>
+    <% } else { %>
+    <p>Are you sure you want to delete this brand?</p>
+    <form method="post" action="">
+      <input type="hidden" name="brand_id" required value="<%= brand._id %>" />
+      <button type="submit">Delete</button>
+    </form>
+    <% } %> <%- include("./partials/footer.ejs") %>
+  </body>
+</html>

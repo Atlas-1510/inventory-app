@@ -130,7 +130,39 @@ exports.brand_delete_get = function (req, res, next) {
 
 // Handle brand delete form on POST
 exports.brand_delete_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Brand delete form POST");
+  async.parallel(
+    {
+      brand: function (callback) {
+        Brand.findById(req.body.brand_id).exec(callback);
+      },
+      brand_products: function (callback) {
+        Product.find({ brand: req.body.brand_id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err);
+      }
+      if (results.brand === null) {
+        res.redirect("/brands");
+      }
+      if (results.brand_products.length > 0) {
+        res.render("brand_form_delete", {
+          title: "Delete Brand",
+          brand: results.brand,
+          brand_products: results.brand_products,
+        });
+        return;
+      } else {
+        Brand.findByIdAndDelete(req.body.brand_id, function (err) {
+          if (err) {
+            return next(err);
+          }
+          res.redirect("/brands");
+        });
+      }
+    }
+  );
 };
 
 // Display brand update form on GET
