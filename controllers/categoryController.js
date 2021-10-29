@@ -2,7 +2,6 @@ const async = require("async");
 const Category = require("../models/category");
 const Product = require("../models/product");
 const { body, validationResult } = require("express-validator");
-const category = require("../models/category");
 
 // Display list of all categories
 exports.category_list = function (req, res, next) {
@@ -34,7 +33,7 @@ exports.category_detail = function (req, res, next) {
       }
       res.render("category", {
         title: results.category.title,
-        category: category,
+        category: results.category,
         product_list: results.category_products,
       });
     }
@@ -95,12 +94,67 @@ exports.category_create_post = [
 
 // Display category delete form on GET
 exports.category_delete_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Category delete form GET");
+  async.parallel(
+    {
+      category: function (callback) {
+        Category.findById(req.params.id).exec(callback);
+      },
+      category_products: function (callback) {
+        Product.find({ category: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err);
+      }
+      if (results.category === null) {
+        res.redirect("/categories");
+      }
+      res.render("category_form_delete", {
+        title: "Delete Category",
+        category: results.category,
+        category_products: results.category_products,
+      });
+    }
+  );
 };
 
 // Handle category delete form on POST
 exports.category_delete_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Category delete form POST");
+  async.parallel(
+    {
+      category: function (callback) {
+        Category.findById(req.body.category_id).exec(callback);
+      },
+      category_products: function (callback) {
+        Product.find({ category: req.body.category_id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err);
+      }
+      if (results.category_products.length > 0) {
+        res.render("category_form_delete", {
+          title: "Delete Category",
+          category: results.category,
+          category_products: results.category_products,
+        });
+        return;
+      }
+      if (results.category === null) {
+        res.redirect("/categories");
+        return;
+      } else {
+        Category.findByIdAndDelete(req.body.category_id, function (err) {
+          if (err) {
+            return next(err);
+          }
+          res.redirect("/categories");
+        });
+      }
+    }
+  );
 };
 
 // Display category update form on GET
