@@ -2,6 +2,7 @@ const async = require("async");
 const Category = require("../models/category");
 const Product = require("../models/product");
 const { body, validationResult } = require("express-validator");
+const category = require("../models/category");
 
 // Display list of all categories
 exports.category_list = function (req, res, next) {
@@ -33,6 +34,7 @@ exports.category_detail = function (req, res, next) {
       }
       res.render("category", {
         title: results.category.title,
+        category: category,
         product_list: results.category_products,
       });
     }

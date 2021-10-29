@@ -4,7 +4,7 @@
   <body>
     <%- include('./partials/nav.ejs') %>
     <h1><%= title %></h1>
-    <p>This is the <%= title %> page</p>
+    <a href="<%= category.id %>/delete">Delete this category</a>
     <% if (product_list.length > 0) { %> <% product_list.forEach(item => { %>
     <h2>
       <a href="<%= item.url %>"><%= item.title %></a>
