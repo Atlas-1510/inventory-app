@@ -5,6 +5,7 @@
     <%- include('./partials/nav.ejs') %>
     <h1><%= brand.title %></h1>
     <a href="<%= brand.url %>/delete">Delete this brand</a>
+    <a href="<%= brand.url %>/update">Update this brand</a>
     <% if (product_list.length > 0) { %> <% product_list.forEach(item => { %>
     <h2>
       <a href="<%= item.url %>"><%= item.title %></a>

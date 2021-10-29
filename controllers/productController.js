@@ -46,7 +46,7 @@ exports.product_create_get = function (req, res, next) {
       if (err) {
         return next(err);
       }
-      res.render("product_form_create", {
+      res.render("product_form", {
         title: "Create Product",
         brands: results.brands,
         categories: results.categories,

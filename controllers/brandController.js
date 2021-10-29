@@ -42,7 +42,7 @@ exports.brand_detail = function (req, res, next) {
 
 // Display brand create form on GET
 exports.brand_create_get = function (req, res, next) {
-  res.render("brand_form_create", { title: "Create Brand" });
+  res.render("brand_form", { title: "Create Brand" });
 };
 
 // Handle brand create on POST
@@ -69,7 +69,7 @@ exports.brand_create_post = [
 
     if (!errors.isEmpty()) {
       // There are errors. Render the form again with sanitized values/error messages.
-      res.render("brand_form_create", {
+      res.render("brand_form", {
         title: "Create Brand",
         brand: brand,
         errors: errors.array(),
@@ -167,10 +167,56 @@ exports.brand_delete_post = function (req, res, next) {
 
 // Display brand update form on GET
 exports.brand_update_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Brand update form GET");
+  Brand.findById(req.params.id).exec(function (err, result) {
+    if (err) {
+      return next(err);
+    }
+    if (result === null) {
+      const error = new Error("Brand not found");
+      error.status = 404;
+      return next(error);
+    }
+    res.render("brand_form", {
+      title: "Update Brand",
+      brand: result,
+    });
+  });
 };
 
 // Handle brand update form on POST
-exports.brand_update_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Brand update form POST");
-};
+exports.brand_update_post = [
+  body("title")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Brand name must be within 1-100 characters")
+    .escape(),
+  // Validate and sanitize the description field.
+  body("description").trim().escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const brand = new Brand({
+      title: req.body.title,
+      description: req.body.description,
+      _id: req.params.id,
+    });
+    if (!errors.isEmpty()) {
+      res.render("brand_form", {
+        title: "Update Brand",
+        brand: brand,
+        errors: errors.array(),
+      });
+      return;
+    }
+    Brand.findByIdAndUpdate(
+      req.params.id,
+      brand,
+      {},
+      function (err, updated_brand) {
+        if (err) {
+          return next(err);
+        }
+        res.redirect(updated_brand.url);
+      }
+    );
+  },
+];
