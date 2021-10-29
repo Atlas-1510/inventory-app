@@ -143,12 +143,23 @@ exports.product_create_post = [
 
 // Display product delete form on GET
 exports.product_delete_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Product delete form GET");
+  Product.findById(req.params.id).exec(function (err, result) {
+    if (err) {
+      return next(err);
+    }
+    console.log(result);
+    res.render("product_form_delete", result);
+  });
 };
 
 // Handle product delete form on POST
 exports.product_delete_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Product delete form POST");
+  Product.findByIdAndDelete(req.body.product_id).exec(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/products");
+  });
 };
 
 // Display product update form on GET
