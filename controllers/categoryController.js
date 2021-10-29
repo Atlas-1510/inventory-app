@@ -42,7 +42,7 @@ exports.category_detail = function (req, res, next) {
 
 // Display category create form on GET
 exports.category_create_get = function (req, res, next) {
-  res.render("category_form_create", { title: "Create Category" });
+  res.render("category_form", { title: "Create Category" });
 };
 
 // Handle category create on POST
@@ -64,7 +64,7 @@ exports.category_create_post = [
       description: req.body.description,
     });
     if (!errors.isEmpty()) {
-      res.render("category_form_create", {
+      res.render("category_form", {
         title: "Create Category",
         category: category,
         errors: errors.array(),
@@ -159,10 +159,59 @@ exports.category_delete_post = function (req, res, next) {
 
 // Display category update form on GET
 exports.category_update_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Category update form GET");
+  Category.findById(req.params.id).exec(function (err, result) {
+    if (err) {
+      return next(err);
+    }
+    if (result === null) {
+      const error = new Error("No category found");
+      error.status = 404;
+      return next(error);
+    }
+    res.render("category_form", {
+      title: "Update Category",
+      category: result,
+    });
+  });
 };
 
 // Handle category update form on POST
-exports.category_update_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Category update form POST");
-};
+exports.category_update_post = [
+  body("title")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Category title length must be 1-100 characters")
+    .escape(),
+  body("description")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Description required.")
+    .escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const category = new Category({
+      title: req.body.title,
+      description: req.body.description,
+      _id: req.params.id,
+    });
+    if (!errors.isEmpty()) {
+      res.render("category_form", {
+        title: "Update Category",
+        category: category,
+        errors: errors.array(),
+      });
+      return;
+    }
+    Category.findByIdAndUpdate(
+      req.params.id,
+      category,
+      {},
+      function (err, updated_category) {
+        if (err) {
+          return next(err);
+        }
+        res.redirect(updated_category.url);
+      }
+    );
+  },
+];
