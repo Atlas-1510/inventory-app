@@ -3,6 +3,7 @@ const Brand = require("../models/brand");
 const Category = require("../models/category");
 const async = require("async");
 const { body, validationResult } = require("express-validator");
+const product = require("../models/product");
 
 // Display list of all products
 exports.product_list = (req, res, next) => {
@@ -121,7 +122,7 @@ exports.product_create_post = [
               category.checked = false;
             }
           });
-          res.render("product_form_create", {
+          res.render("product_form", {
             title: "Create Product",
             brands: results.brands,
             categories: results.categories,
@@ -163,10 +164,137 @@ exports.product_delete_post = function (req, res, next) {
 
 // Display product update form on GET
 exports.product_update_get = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Product update form GET");
+  async.parallel(
+    {
+      product: function (callback) {
+        Product.findById(req.params.id).exec(callback);
+      },
+      brands: function (callback) {
+        Brand.find().exec(callback);
+      },
+      categories: function (callback) {
+        Category.find().exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err);
+      }
+      if (results.product === null) {
+        const err = new Error("Product not found");
+        err.status = 404;
+        return next(err);
+      }
+      results.brands.forEach((brand) => {
+        if (brand.id === results.product.brand._id.toString()) {
+          brand.checked = true;
+        } else {
+          brand.checked = false;
+        }
+      });
+      results.categories.forEach((category) => {
+        if (category.id === results.product.category._id.toString()) {
+          category.checked = true;
+        } else {
+          category.checked = false;
+        }
+      });
+      res.render("product_form", {
+        title: "Update Product",
+        product: results.product,
+        brands: results.brands,
+        categories: results.categories,
+      });
+    }
+  );
 };
 
 // Handle product update form on POST
-exports.product_update_post = function (req, res, next) {
-  res.send("NOT IMPLEMENTED: Product update form POST");
-};
+exports.product_update_post = [
+  body("title")
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Product title length must be within 1-100 characters.")
+    .escape(),
+  body("price")
+    .trim()
+    .isCurrency({ allow_negatives: false, digits_after_decimal: [0, 1, 2] })
+    .withMessage(
+      "Price must be positive, and have two or fewer decimal places."
+    )
+    .escape(),
+  body("rating")
+    .trim()
+    .isIn([1, 2, 3, 4, 5])
+    .withMessage("Rating must be 1-5, inclusive.")
+    .escape(),
+  body("quantity")
+    .trim()
+    .isInt({ min: 0 })
+    .withMessage("Quantity required.")
+    .escape(),
+  body("brand.*").escape(),
+  body("category.*").escape(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    const product = new Product({
+      title: req.body.title,
+      price: req.body.price,
+      rating: req.body.rating,
+      quantity: req.body.quantity,
+      brand: req.body.brand,
+      category: req.body.category,
+      _id: req.params.id,
+    });
+    if (!errors.isEmpty()) {
+      async.parallel(
+        {
+          brands: function (callback) {
+            Brand.find(callback);
+          },
+          categories: function (callback) {
+            Category.find(callback);
+          },
+        },
+        function (err, results) {
+          if (err) {
+            return next(err);
+          }
+          results.brands.forEach((brand) => {
+            if (brand.id === req.body.brand) {
+              brand.checked = true;
+            } else {
+              brand.checked = false;
+            }
+          });
+          results.categories.forEach((category) => {
+            if (category.id === req.body.category) {
+              category.checked = true;
+            } else {
+              category.checked = false;
+            }
+          });
+          res.render("product_form", {
+            title: "Create Product",
+            brands: results.brands,
+            categories: results.categories,
+            product: product,
+            errors: errors.array(),
+          });
+        }
+      );
+    } else {
+      Product.findByIdAndUpdate(
+        req.params.id,
+        product,
+        {},
+        function (err, updated_product) {
+          if (err) {
+            return next(err);
+          }
+          res.redirect(updated_product.url);
+        }
+      );
+    }
+  },
+];

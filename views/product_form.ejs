@@ -23,11 +23,12 @@
       <div>
         <label for="rating">Rating:</label>
         <select name="rating">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
+          <% [1,2,3,4,5].forEach(index => { %> <% if (typeof product !==
+          "undefined" && index == product.rating) { %>
+          <option selected value="<%= index %>"><%= index %></option>
+          <% } else { %>
+          <option value="<%= index %>"><%= index %></option>
+          <% } %> <% }) %>
         </select>
       </div>
       <div>
