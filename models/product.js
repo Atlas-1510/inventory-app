@@ -11,6 +11,7 @@ const ProductSchema = new Schema({
   brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
   category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
   quantity: { type: Number, required: true, min: 0 },
+  imageURL: { type: String },
 });
 
 // Virtual for product URL

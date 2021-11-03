@@ -3,7 +3,41 @@ const Brand = require("../models/brand");
 const Category = require("../models/category");
 const async = require("async");
 const { body, validationResult } = require("express-validator");
-const product = require("../models/product");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+// Set up Multer image processing
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/images");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      `${file.fieldname}-${Date.now()}-${path.extname(file.originalname)}`
+    );
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1000000 },
+  fileFilter: function (req, file, cb) {
+    checkFileName(file, cb);
+  },
+}).single("productImage");
+
+function checkFileName(file, cb) {
+  const types = /jpeg|jpg|gif|png/;
+  const fileType = types.test(file.originalname.toLowerCase());
+  const mimeType = types.test(file.mimetype);
+  if (fileType && mimeType) {
+    return cb(null, true);
+  } else {
+    return cb({ message: "Invalid file type" }, false);
+  }
+}
 
 // Display list of all products
 exports.product_list = (req, res, next) => {
@@ -57,6 +91,16 @@ exports.product_create_get = function (req, res, next) {
 
 // Handle product create on POST
 exports.product_create_post = [
+  function (req, res, next) {
+    upload(req, res, function (err) {
+      if (err) {
+        console.log("ERROR");
+        console.log(err);
+        req.imageError = err;
+      }
+      next();
+    });
+  },
   body("title")
     .trim()
     .isLength({ min: 1, max: 100 })
@@ -82,8 +126,11 @@ exports.product_create_post = [
   body("brand.*").escape(),
   body("category.*").escape(),
   (req, res, next) => {
-    const errors = validationResult(req);
-    console.log(req.body.brand);
+    // Compile errors
+    const errors = validationResult(req).array();
+    if (req.imageError) {
+      errors.push({ msg: req.imageError.message });
+    }
     const product = new Product({
       title: req.body.title,
       price: req.body.price,
@@ -92,8 +139,8 @@ exports.product_create_post = [
       brand: req.body.brand,
       category: req.body.category,
     });
-    console.log(product.brand);
-    if (!errors.isEmpty()) {
+
+    if (errors.length > 0) {
       async.parallel(
         {
           brands: function (callback) {
@@ -122,16 +169,26 @@ exports.product_create_post = [
               category.checked = false;
             }
           });
+
+          // Delete temporary stored image
+          if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+              if (err) {
+                console.log("error in fs");
+              }
+            });
+          }
           res.render("product_form", {
             title: "Create Product",
             brands: results.brands,
             categories: results.categories,
             product: product,
-            errors: errors.array(),
+            errors: errors,
           });
         }
       );
     } else {
+      product.imageURL = `images/${req.file.filename}`;
       product.save(function (err) {
         if (err) {
           return next(err);

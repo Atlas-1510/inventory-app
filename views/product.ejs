@@ -18,7 +18,8 @@
         <a href="<%= category.url %> "><%= category.title %></a>
       </li>
     </ul>
-
-    <%- include("./partials/footer.ejs") %>
+    <% if (imageURL) { %>
+    <img src="/<%= imageURL %>" />
+    <% } %> <%- include("./partials/footer.ejs") %>
   </body>
 </html>

@@ -4,7 +4,7 @@
   <body>
     <%- include('./partials/nav.ejs') %>
     <h1><%= title %></h1>
-    <form method="post" action="">
+    <form method="post" action="" enctype="multipart/form-data">
       <div>
         <label for="title">Title:</label>
         <input type="text" name="title" placeholder="Title of product"
@@ -50,7 +50,9 @@
         <label for="<%= category.title %>"><%= category.title %></label>
         <% }) %> <% } %>
       </div>
-
+      <div>
+        <input type="file" name="productImage" />
+      </div>
       <div>
         <button type="submit">Submit</button>
       </div>
