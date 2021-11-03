@@ -188,7 +188,7 @@ exports.product_create_post = [
         }
       );
     } else {
-      product.imageURL = `images/${req.file.filename}`;
+      product.imageURL = req.file.filename;
       product.save(function (err) {
         if (err) {
           return next(err);
@@ -210,14 +210,37 @@ exports.product_delete_get = function (req, res, next) {
 };
 
 // Handle product delete form on POST
-exports.product_delete_post = function (req, res, next) {
-  Product.findByIdAndDelete(req.body.product_id).exec(function (err) {
-    if (err) {
-      return next(err);
-    }
+exports.product_delete_post = [
+  function (req, res, next) {
+    Product.findById(req.body.product_id).exec((err, result) => {
+      if (err) {
+        return next(err);
+      } else {
+        const imageName = path.basename(result.imageURL);
+        fs.unlink(
+          path.join(__dirname, "..", "public", "images", imageName),
+          (err) => {
+            if (err) {
+              return next(err);
+            }
+          }
+        );
+      }
+      next();
+    });
+  },
+  function (req, res, next) {
+    Product.findByIdAndDelete(req.body.product_id).exec(function (err) {
+      if (err) {
+        return next(err);
+      }
+      next();
+    });
+  },
+  function (req, res) {
     res.redirect("/products");
-  });
-};
+  },
+];
 
 // Display product update form on GET
 exports.product_update_get = function (req, res, next) {
