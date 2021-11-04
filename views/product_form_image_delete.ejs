@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <%- include('./partials/head.ejs') %>
+  <body>
+    <%- include('./partials/nav.ejs') %>
+    <h1>Delete Image for Product: <%= title %></h1>
+    <p>Are you sure you want to delete this product image?</p>
+    <img src="/images/<%= imageURL %> " />
+    <form method="post" action="">
+      <input type="hidden" name="product_id" required value="<%= _id %>" />
+      <button type="submit">Delete</button>
+    </form>
+    <a href="<%= url %>/update">Cancel</a>
+    <%- include("./partials/footer.ejs") %>
+  </body>
+</html>

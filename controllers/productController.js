@@ -188,7 +188,9 @@ exports.product_create_post = [
         }
       );
     } else {
-      product.imageURL = req.file.filename;
+      if (req.file) {
+        product.imageURL = req.file.filename;
+      }
       product.save(function (err) {
         if (err) {
           return next(err);
@@ -216,15 +218,17 @@ exports.product_delete_post = [
       if (err) {
         return next(err);
       } else {
-        const imageName = path.basename(result.imageURL);
-        fs.unlink(
-          path.join(__dirname, "..", "public", "images", imageName),
-          (err) => {
-            if (err) {
-              return next(err);
+        if (result.imageURL) {
+          const imageName = path.basename(result.imageURL);
+          fs.unlink(
+            path.join(__dirname, "..", "public", "images", imageName),
+            (err) => {
+              if (err) {
+                return next(err);
+              }
             }
-          }
-        );
+          );
+        }
       }
       next();
     });
@@ -291,6 +295,14 @@ exports.product_update_get = function (req, res, next) {
 
 // Handle product update form on POST
 exports.product_update_post = [
+  function (req, res, next) {
+    upload(req, res, function (err) {
+      if (err) {
+        req.imageError = err;
+      }
+      next();
+    });
+  },
   body("title")
     .trim()
     .isLength({ min: 1, max: 100 })
@@ -316,7 +328,11 @@ exports.product_update_post = [
   body("brand.*").escape(),
   body("category.*").escape(),
   (req, res, next) => {
-    const errors = validationResult(req);
+    // Compile errors
+    const errors = validationResult(req).array();
+    if (req.imageError) {
+      errors.push({ msg: req.imageError.message });
+    }
     const product = new Product({
       title: req.body.title,
       price: req.body.price,
@@ -326,7 +342,7 @@ exports.product_update_post = [
       category: req.body.category,
       _id: req.params.id,
     });
-    if (!errors.isEmpty()) {
+    if (errors.length > 0) {
       async.parallel(
         {
           brands: function (callback) {
@@ -354,16 +370,27 @@ exports.product_update_post = [
               category.checked = false;
             }
           });
+          // Delete temporary stored image
+          if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+              if (err) {
+                console.log("error in fs");
+              }
+            });
+          }
           res.render("product_form", {
             title: "Create Product",
             brands: results.brands,
             categories: results.categories,
             product: product,
-            errors: errors.array(),
+            errors: errors,
           });
         }
       );
     } else {
+      if (req.file) {
+        product.imageURL = req.file.filename;
+      }
       Product.findByIdAndUpdate(
         req.params.id,
         product,
@@ -378,3 +405,40 @@ exports.product_update_post = [
     }
   },
 ];
+
+// Display product image delete form on GET
+exports.product_delete_image_get = function (req, res, next) {
+  Product.findById(req.params.id).exec(function (err, result) {
+    if (err) {
+      return next(err);
+    } else {
+      res.render("product_form_image_delete", result);
+    }
+  });
+};
+
+// Handle product image delete on POST
+exports.product_delete_image_post = function (req, res, next) {
+  Product.findOneAndUpdate(
+    { _id: req.params.id },
+    { $unset: { imageURL: "" } },
+    {},
+    (err, doc) => {
+      if (err) {
+        return next(err);
+      }
+      // Delete stored image from server
+      console.log(doc);
+      fs.unlink(
+        path.join(__dirname, "..", "public", "images", doc.imageURL),
+        (err) => {
+          if (err) {
+            return next(err);
+          }
+        }
+      );
+
+      res.redirect(`${doc.url}/update`);
+    }
+  );
+};

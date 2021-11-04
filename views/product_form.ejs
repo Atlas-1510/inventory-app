@@ -51,7 +51,12 @@
         <% }) %> <% } %>
       </div>
       <div>
+        <% if (typeof product !== "undefined" && product.imageURL) { %>
+        <img src="/images/<%= product.imageURL %>" />
+        <a href="<%= product.url %>/removeImage">Remove this image</a>
+        <% } else { %>
         <input type="file" name="productImage" />
+        <% } %>
       </div>
       <div>
         <button type="submit">Submit</button>

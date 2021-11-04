@@ -24,6 +24,12 @@ router.get("/:id/update", productController.product_update_get);
 // POST request to update a product
 router.post("/:id/update", productController.product_update_post);
 
+// GET request to delete a product image
+router.get("/:id/removeImage", productController.product_delete_image_get);
+
+// POST request to delete a product image
+router.post("/:id/removeImage", productController.product_delete_image_post);
+
 // GET request for one product
 router.get("/:id", productController.product_detail);
 
