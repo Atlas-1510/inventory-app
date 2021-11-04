@@ -94,8 +94,6 @@ exports.product_create_post = [
   function (req, res, next) {
     upload(req, res, function (err) {
       if (err) {
-        console.log("ERROR");
-        console.log(err);
         req.imageError = err;
       }
       next();
@@ -174,7 +172,7 @@ exports.product_create_post = [
           if (req.file) {
             fs.unlink(req.file.path, (err) => {
               if (err) {
-                console.log("error in fs");
+                return next(err);
               }
             });
           }
@@ -374,7 +372,7 @@ exports.product_update_post = [
           if (req.file) {
             fs.unlink(req.file.path, (err) => {
               if (err) {
-                console.log("error in fs");
+                return next(err);
               }
             });
           }
@@ -428,7 +426,6 @@ exports.product_delete_image_post = function (req, res, next) {
         return next(err);
       }
       // Delete stored image from server
-      console.log(doc);
       fs.unlink(
         path.join(__dirname, "..", "public", "images", doc.imageURL),
         (err) => {

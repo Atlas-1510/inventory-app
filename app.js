@@ -3,7 +3,8 @@ var express = require("express");
 
 // Set up mongoose connection
 const mongoose = require("mongoose");
-const mongoDB = `mongodb+srv://inventory-app-admin:super-user@cluster0.dg6jj.mongodb.net/inventory?retryWrites=true&w=majority`;
+const dev_db_url = `mongodb+srv://inventory-app-admin:super-user@cluster0.dg6jj.mongodb.net/inventory?retryWrites=true&w=majority`;
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
 // mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connect(mongoDB);
 const db = mongoose.connection;
@@ -18,11 +19,20 @@ const productsRouter = require("./routes/products");
 const brandsRouter = require("./routes/brands");
 const categoriesRouter = require("./routes/categories");
 
+const compression = require("compression");
+const helmet = require("helmet");
+
 var app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
+// Compression set up
+app.use(compression());
+
+// Helmet set up
+app.use(helmet());
 
 app.use(logger("dev"));
 app.use(express.json());
